@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Video Parallax Background</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Oswald&display=swap');
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow-x: hidden;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      font-family: 'Oswald', sans-serif;
+      scroll-behavior: smooth;
+      scroll-snap-type: y mandatory;
+    }
+    body::-webkit-scrollbar {
+      display: none;
+    }
+    .parallax-video {
+      position: relative;
+      height: 100vh;
+      overflow: hidden;
+      z-index: 1;
+      scroll-snap-align: start;
+    }
+    .video-wrapper {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 177.77vh;
+      height: 100vh;
+      z-index: -1;
+      will-change: transform;
+    }
+    .video-wrapper video,
+    .video-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      pointer-events: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+    .video-wrapper video {
+      opacity: 0;
+      transition: opacity 1s ease-in-out;
+    }
+    .video-wrapper img {
+      opacity: 1;
+      transition: opacity 1s ease-in-out;
+      z-index: -2;
+    }
+    .overlay {
+      position: relative;
+      z-index: 2;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #9dcfff;
+      font-size: 4em;
+      font-weight: normal;
+      text-shadow: 0 0 2px #0c2d4e, 0 0 6px #0b2540, 0 0 10px #081c33;
+      cursor: pointer;
+
+      /* fade effect */
+      opacity: 1;
+      transition: opacity 0.5s ease;
+      pointer-events: auto;
+    }
+    .overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .content {
+      padding: 80px 20px;
+      background: #f0f0f0;
+      text-align: center;
+      scroll-snap-align: start;
+    }
+    .controls {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      z-index: 3;
+      transition: opacity 0.5s ease-in-out;
+    }
+    .controls.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .parallax-video:hover .controls.hidden {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .controls button {
+      padding: 12px 28px;
+      margin-right: 10px;
+      font-size: 16px;
+      border: none;
+      border-radius: 30px;
+      background: linear-gradient(135deg, #0052a5, #003d80);
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0, 50, 100, 0.4);
+      transition: all 0.3s ease-in-out;
+      opacity: 0.8;
+    }
+    .controls button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 20px rgba(0, 50, 100, 0.6);
+      opacity: 1;
+    }
+    .controls button:active {
+      transform: scale(0.97);
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+  <!-- First video section -->
+  <div class="parallax-video" id="section1">
+    <div class="video-wrapper" id="wrapper1">
+      <video id="video1" loop muted playsinline>
+        <source src="https://raw.githubusercontent.com/vectorvortex/parallax-video/main/DB.mp4" type="video/mp4" />
+      </video>
+      <img id="poster1" src="https://raw.githubusercontent.com/vectorvortex/parallax-video/main/SKY.jpg" alt="Fallback Image 1">
+    </div>
+    <div class="overlay" id="overlay1">ArchX</div>
+    <div class="controls hidden" id="controls1">
+      <button onclick="togglePlayPause(0)">Play / Pause</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <h2>Scroll Down</h2>
+    <p>This is regular content below the video background.</p>
+  </div>
+
+  <!-- Second video section -->
+  <div class="parallax-video" id="section2">
+    <div class="video-wrapper" id="wrapper2">
+      <video id="video2" loop muted playsinline>
+        <source src="https://raw.githubusercontent.com/vectorvortex/parallax-video/main/MB.mp4" type="video/mp4" />
+      </video>
+      <img id="poster2" src="https://raw.githubusercontent.com/vectorvortex/parallax-video/main/BOSTON.jpg" alt="Fallback Image 2">
+    </div>
+    <div class="controls hidden" id="controls2">
+      <button onclick="togglePlayPause(1)">Play / Pause</button>
+    </div>
+  </div>
+
+<script>
+  const wrappers = [
+    {
+      wrapper: document.getElementById('wrapper1'),
+      video: document.getElementById('video1'),
+      poster: document.getElementById('poster1'),
+      controls: document.getElementById('controls1'),
+      overlay: document.getElementById('overlay1'),
+      speed: 0.6
+    },
+    {
+      wrapper: document.getElementById('wrapper2'),
+      video: document.getElementById('video2'),
+      poster: document.getElementById('poster2'),
+      controls: document.getElementById('controls2'),
+      overlay: null,
+      speed: 0.3
+    }
+  ];
+
+  // Parallax scroll effect
+  window.addEventListener('scroll', () => {
+    const scrollY = window.scrollY;
+    wrappers.forEach(w => {
+      const offset = scrollY * w.speed;
+      w.wrapper.style.transform = `translate(-50%, ${offset}px)`;
+    });
+  });
+
+  // Toggle video and poster opacity & overlay visibility on play/pause
+  wrappers.forEach(w => {
+    w.video.style.opacity = '0';
+    w.poster.style.opacity = '1';
+    if (w.overlay) w.overlay.classList.remove('hidden');
+    w.controls.classList.add('hidden');
+
+    w.video.addEventListener('play', () => {
+      w.video.style.opacity = '1';
+      w.poster.style.opacity = '0';
+      if (w.overlay) w.overlay.classList.add('hidden');
+      w.controls.classList.add('hidden');
+    });
+
+    w.video.addEventListener('pause', () => {
+      w.video.style.opacity = '0';
+      w.poster.style.opacity = '1';
+      if (w.overlay) w.overlay.classList.remove('hidden');
+      w.controls.classList.remove('hidden');
+    });
+  });
+
+  // Play/pause toggle with exclusive playback and unmute on play
+  function togglePlayPause(index) {
+    wrappers.forEach((w, i) => {
+      if (i === index) {
+        if (w.video.paused) {
+          w.video.play();
+          w.video.muted = false;
+        } else {
+          w.video.pause();
+          w.video.muted = true;
+        }
+      } else {
+        w.video.pause();
+        w.video.muted = true;
+      }
+    });
+  }
+
+  // Overlay click toggles first video play/pause
+  document.getElementById('overlay1').addEventListener('click', () => {
+    togglePlayPause(0);
+  });
+</script>
+</body>
+</html>
